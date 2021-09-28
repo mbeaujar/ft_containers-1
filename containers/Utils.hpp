@@ -6,7 +6,7 @@
 /*   By: ranaili <ranaili@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/19 20:13:38 by ranaili           #+#    #+#             */
-/*   Updated: 2021/09/22 18:32:10 by ranaili          ###   ########.fr       */
+/*   Updated: 2021/09/24 22:48:16 by ranaili          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,6 @@ namespace ft
     template <> struct is_integral<char> : integral_constant<bool, true> {};
     template <> struct is_integral<wchar_t> : integral_constant<bool, true> {};
     template <> struct is_integral<long int> : integral_constant<bool, true> {};
-    // template struct <> is_integral<char16_t> : integral_constant<T, true> {};
-    // template struct <> is_integral<char32_t> : integral_constant<T, true> {};
     template <> struct is_integral<short int> : integral_constant<bool, true> {};
     template <> struct is_integral<signed char> : integral_constant<bool, true> {};
     template <> struct is_integral<unsigned int> : integral_constant<bool, true> {};
@@ -47,12 +45,64 @@ namespace ft
     template <> struct is_integral<unsigned short int> : integral_constant<bool, true> {};
     template <> struct is_integral<unsigned long long int> : integral_constant<bool, true> {};
 
-    
     /* ************************************************************************** */
-    /*                              ITERATOR_TRAIT                                */
+    /*                               ENABLE_IF                                    */
     /* ************************************************************************** */
 
+
+    template<bool Cond, class T = void>
+    struct enable_if {};
+
+    template<class T>
+    struct enable_if<true, T> { typedef T type; };
+
+
+    /* ************************************************************************** */
+    /*                              ITERATOR_STUFF                                */
+    /* ************************************************************************** */
+
+    struct random_access_iterator_tag {};
+
+    template <class Category, class T, class Distance = std::ptrdiff_t, class Pointer = T*, class Reference = T&>
+    struct iterator
+    {
+        typedef Pointer                                   pointer;
+        typedef Reference                                 reference;
+        typedef T                                         value_type;
+        typedef Distance                                  difference_type;
+        typedef Category                                  iterator_category;
+    };
+
+    template< class Iter >
+    struct iterator_traits
+    {
+        typedef typename Iter::pointer                    pointer;
+        typedef typename Iter::reference                  reference;
+        typedef typename Iter::value_type                 value_type;
+        typedef typename Iter::difference_type            difference_type;
+        typedef typename Iter::iterator_category          iterator_category;
+    };
+
+    template< class T >
+    struct iterator_traits<T*>
+    {
+        typedef T*                                        pointer;
+        typedef T&                                        reference;
+        typedef T                                         value_type;
+        typedef typename std::ptrdiff_t                   difference_type;
+        typedef typename ft::random_access_iterator_tag   iterator_category;
+    };
     
+    template< class T >
+    struct iterator_traits<const T*>
+    {
+        typedef const T*                                  pointer;
+        typedef const T&                                  reference;
+        typedef T                                         value_type;
+        typedef typename std::ptrdiff_t                   difference_type;
+        typedef typename ft::random_access_iterator_tag   iterator_category;
+    };
+        
 };
 
 #endif
