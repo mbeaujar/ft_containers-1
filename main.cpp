@@ -6,7 +6,7 @@
 /*   By: ranaili <ranaili@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/19 17:32:37 by ranaili           #+#    #+#             */
-/*   Updated: 2021/09/24 19:59:52 by ranaili          ###   ########.fr       */
+/*   Updated: 2021/09/28 23:01:58 by ranaili          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,17 @@
 #include "containers/Utils.hpp"
 #include "containers/Vector.hpp"
 
+template <typename T>
+void printvector(ft::vector<T> a)
+{
+    typename ft::vector<T>::iterator it;
+    int i = 0;
+    for (it = a.begin(); it != a.end(); it++, i++)
+        std::cout << "#" << i << " " << *it << std::endl;
+    std::cout << "size: " << a.size() << std::endl;
+    std::cout << "capacity: " << a.capacity() << std::endl;
+    std::cout << std::endl;
+}
 
 int main ()
 {
@@ -23,8 +34,10 @@ int main ()
   ft::vector<int> fourth (second);                       // a copy of third
 
   // the iterator constructor can also be used to construct from arrays:
-  int myints[] = {16,2,77,29};
-  ft::vector<int> fifth (myints, myints + sizeof(myints) / sizeof(int) );
+  // int myints[] = {16,2,77,29};
+  // ft::vector<int> fifth (myints, myints + sizeof(myints) / sizeof(int) );
+
+  printvector(fourth);
 
   std::cout << "The contents of fifth are:";
   std::cout << '\n';
