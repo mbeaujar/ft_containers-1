@@ -6,7 +6,7 @@
 /*   By: ranaili <ranaili@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/19 20:13:38 by ranaili           #+#    #+#             */
-/*   Updated: 2021/09/24 22:48:16 by ranaili          ###   ########.fr       */
+/*   Updated: 2021/09/30 15:58:45 by ranaili          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 
 namespace ft
 {
-
     /* ************************************************************************** */
     /*                              IS_INTEGRAL                                   */
     /* ************************************************************************** */
@@ -56,53 +55,36 @@ namespace ft
     template<class T>
     struct enable_if<true, T> { typedef T type; };
 
-
-    /* ************************************************************************** */
-    /*                              ITERATOR_STUFF                                */
-    /* ************************************************************************** */
-
-    struct random_access_iterator_tag {};
-
-    template <class Category, class T, class Distance = std::ptrdiff_t, class Pointer = T*, class Reference = T&>
-    struct iterator
+    template <class InputIterator1, class InputIterator2>
+    bool lexicographical_compare (InputIterator1 first1, InputIterator1 last1, InputIterator2 first2, InputIterator2 last2)
     {
-        typedef Pointer                                   pointer;
-        typedef Reference                                 reference;
-        typedef T                                         value_type;
-        typedef Distance                                  difference_type;
-        typedef Category                                  iterator_category;
-    };
+        while (first1 != last1)
+        {
+            if (first2 == last2 || *first2 < *first1)
+                return false;
+            else if (*first1 < *first2)
+                return true;
+            ++first1;
+            ++first2;
+        }
+        return (first2 != last2);
+    }
 
-    template< class Iter >
-    struct iterator_traits
+    template <class InputIterator1, class InputIterator2, class Compare>
+    bool lexicographical_compare (InputIterator1 first1, InputIterator1 last1, InputIterator2 first2, InputIterator2 last2, Compare comp)
     {
-        typedef typename Iter::pointer                    pointer;
-        typedef typename Iter::reference                  reference;
-        typedef typename Iter::value_type                 value_type;
-        typedef typename Iter::difference_type            difference_type;
-        typedef typename Iter::iterator_category          iterator_category;
-    };
-
-    template< class T >
-    struct iterator_traits<T*>
-    {
-        typedef T*                                        pointer;
-        typedef T&                                        reference;
-        typedef T                                         value_type;
-        typedef typename std::ptrdiff_t                   difference_type;
-        typedef typename ft::random_access_iterator_tag   iterator_category;
-    };
+        while (first1 != last1)
+        {
+            if (first2 == last2 || comp(*first2, *first1))
+                return false;
+            else if (comp(*first1, *first2))
+                return true;
+            ++first1;
+            ++first2;
+        }
+        return (first2 != last2);
+    }
     
-    template< class T >
-    struct iterator_traits<const T*>
-    {
-        typedef const T*                                  pointer;
-        typedef const T&                                  reference;
-        typedef T                                         value_type;
-        typedef typename std::ptrdiff_t                   difference_type;
-        typedef typename ft::random_access_iterator_tag   iterator_category;
-    };
-        
 };
 
 #endif
