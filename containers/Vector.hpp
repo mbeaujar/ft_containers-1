@@ -6,7 +6,7 @@
 /*   By: ranaili <ranaili@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/19 17:33:16 by ranaili           #+#    #+#             */
-/*   Updated: 2021/09/30 20:36:14 by ranaili          ###   ########.fr       */
+/*   Updated: 2021/09/30 22:52:39 by ranaili          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,13 @@
 # define __VECTOR_HPP__
 
 # include <memory>
+# include <string>
 # include <iostream>
+# include <sstream>
+# include <stdexcept>
 # include "Utils.hpp"
 # include "iterator.hpp"
+
 
 namespace ft
 {
@@ -116,9 +120,19 @@ namespace ft
 
             const_reference operator[] (size_type n) const { return *(_arr + n); }
 
-            reference at (size_type n) { return *(_arr + n); }
+            reference at (size_type n) { 
+                
+                if (n > _size)
+                    throw std::out_of_range("vector::_M_range_check: __n (which is " + to_string(n) + ") >= this->size() (which is " + to_string(this->size()) + ")");
+                return *(_arr + n); 
+            }
             
-            const_reference at (size_type n) const { return *(_arr + n); }
+            const_reference at (size_type n) const { 
+
+                if (n > _size)
+                    throw std::out_of_range("vector::_M_range_check: __n (which is " + to_string(n) + ") >= this->size() (which is " + to_string(this->size()) + ")");
+                return *(_arr + n);
+            }
 
             reference front() { return *_arr; }
 
@@ -448,12 +462,19 @@ namespace ft
                 _size = 0;
             }
 
-
         private:
             pointer         _arr;
             allocator_type  _alloc;
             size_type       _size;
             size_type       _capacity;
+            
+            template <typename tostring>
+            std::string to_string(tostring n) const
+            {
+                std::ostringstream ss;
+                ss << n;
+                return ss.str();
+            }
     };
 
 

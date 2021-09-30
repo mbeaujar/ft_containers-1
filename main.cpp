@@ -6,7 +6,7 @@
 /*   By: ranaili <ranaili@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/19 17:32:37 by ranaili           #+#    #+#             */
-/*   Updated: 2021/09/30 20:30:50 by ranaili          ###   ########.fr       */
+/*   Updated: 2021/09/30 22:35:49 by ranaili          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,65 +81,31 @@ void	cmp(const TESTED_NAMESPACE::vector<T, Alloc> &lhs, const TESTED_NAMESPACE::
 
 int		main(void)
 {
-	TESTED_NAMESPACE::vector<TESTED_TYPE> vct(4);
-	TESTED_NAMESPACE::vector<TESTED_TYPE> vct2(4);
+	TESTED_NAMESPACE::vector<TESTED_TYPE> vct(7);
 
-	cmp(vct, vct);  // 0
-	cmp(vct, vct2); // 1
+	for (unsigned long int i = 0; i < vct.size(); ++i)
+	{
+		vct.at(i) = (vct.size() - i) * 3;
+		std::cout << "vct[]: " << vct[i] << std::endl;
+	}
+	printSize(vct);
 
-	vct2.resize(10);
+	TESTED_NAMESPACE::vector<TESTED_TYPE> const vct_c(vct);
 
-	cmp(vct, vct2); // 2
-	cmp(vct2, vct); // 3
+	std::cout << "front(): " << vct.front() << " " << vct_c.front() << std::endl;
+	std::cout << "back(): " << vct.back() << " " <<  vct_c.back() << std::endl;
 
-	vct[2] = 42;
-
-	cmp(vct, vct2); // 4
-	cmp(vct2, vct); // 5
-
-	swap(vct, vct2);
-
-	cmp(vct, vct2); // 6
-	cmp(vct2, vct); // 7
-
+	for (unsigned long int i = 0; i < vct_c.size(); ++i)
+		std::cout << "vct_c.at(): " << vct_c.at(i) << std::endl;
+	try {
+		std::cout << vct_c.at(10) << std::endl;
+	}
+	catch (std::out_of_range &e) {
+		std::cout << "Catch out_of_range exception!" << std::endl;
+	}
+	catch (std::exception &e) {
+		std::cout << "Catch exception: " << e.what() << std::endl;
+	}
+	printSize(vct_c);
 	return (0);
 }
-
-
-// int		main(void)
-// {
-// 	TESTED_NAMESPACE::vector<TESTED_TYPE> vct(5);
-// 	TESTED_NAMESPACE::vector<TESTED_TYPE>::iterator it = vct.begin(), ite = vct.end();
-
-// 	std::cout << "len: " << (ite - it) << std::endl;
-// 	for (; it != ite; ++it)
-// 		*it = (ite - it);
-
-// 	it = vct.begin();
-// 	TESTED_NAMESPACE::vector<TESTED_TYPE> vct_range(it, --(--ite));
-// 	for (int i = 0; it != ite; ++it)
-// 		*it = ++i * 5;
-
-// 	it = vct.begin();
-// 	TESTED_NAMESPACE::vector<TESTED_TYPE> vct_copy(vct);
-// 	for (int i = 0; it != ite; ++it)
-// 		*it = ++i * 7;
-// 	vct_copy.push_back(42);
-// 	vct_copy.push_back(21);
-
-// 	std::cout << "\t-- PART ONE --" << std::endl;
-// 	printSize(vct);
-// 	printSize(vct_range);
-// 	printSize(vct_copy);
-
-// 	vct = vct_copy;
-// 	vct_copy = vct_range;
-// 	vct_range.clear();
-
-// 	std::cout << "\t-- PART TWO --" << std::endl;
-// 	printSize(vct);
-// 	printSize(vct_range);
-// 	printSize(vct_copy);
-// 	return (0);
-// }
-
