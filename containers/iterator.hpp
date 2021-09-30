@@ -6,7 +6,7 @@
 /*   By: ranaili <ranaili@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/30 15:57:09 by ranaili           #+#    #+#             */
-/*   Updated: 2021/09/30 19:22:25 by ranaili          ###   ########.fr       */
+/*   Updated: 2021/09/30 19:33:10 by ranaili          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,8 @@ namespace ft
             reverse_iterator    operator- (difference_type n) const { return (reverse_iterator(current + n)); }
             reverse_iterator    operator+ (difference_type n) const { return (reverse_iterator(current - n)); }
 
+            difference_type operator-(reverse_iterator const &r) { return r.base() - this->base(); }
+
         protected:
             iterator_type     current;
     };
@@ -138,14 +140,7 @@ namespace ft
     template <class Iterator>
     reverse_iterator<Iterator> operator+ (typename reverse_iterator<Iterator>::difference_type n, const reverse_iterator<Iterator>& rev_it) { return (rev_it + n); }
 
-    template <class Iterator>
-    typename reverse_iterator<Iterator>::difference_type operator- ( const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs) { return (rhs.base() - lhs.base()); }
-
-    template <class Iterator_L, class Iterator_R>
-    bool operator- (const reverse_iterator<Iterator_L>& lhs, const reverse_iterator<Iterator_R>& rhs) { return (rhs.base() - lhs.base()); }
-
-
-     template<typename T>
+    template<typename T>
     class random_access_iterator : private ft::iterator<ft::random_access_iterator_tag, T>
     {
         public :

@@ -6,7 +6,7 @@
 /*   By: ranaili <ranaili@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/19 17:33:16 by ranaili           #+#    #+#             */
-/*   Updated: 2021/09/30 19:10:30 by ranaili          ###   ########.fr       */
+/*   Updated: 2021/09/30 20:36:14 by ranaili          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,15 +68,22 @@ namespace ft
             }
         
             // Constructs a container with a copy of each of the elements in x, in the same order.
-        	vector (const vector& x)
+        	vector (const vector& x) :
+                _arr(NULL),
+                _alloc(x._alloc),
+                _size(0),
+                _capacity(0)
             {
-                _size = x._size;
-                _alloc = x._alloc;
-                _capacity = x._capacity;
-                _arr = _alloc.allocate(_capacity);
-                for (size_type i = 0; i < _size; i++)
-                    _alloc.construct(_arr + i, *(x._arr + i)); // _arr[i] = x._arr[i];
+                assign(x.begin(), x.end());
             }
+            // {
+            //     _size = x._size;
+            //     _alloc = x._alloc;
+            //     _capacity = x._capacity;
+            //     _arr = _alloc.allocate(_capacity);
+            //     for (size_type i = 0; i < _size; i++)
+            //         _alloc.construct(_arr + i, *(x._arr + i)); // _arr[i] = x._arr[i];
+            // }
         
 
             /* ************************************************************************** */
@@ -142,22 +149,19 @@ namespace ft
                 if (_size + 1 > _capacity)
                 {
                     pointer tmp;
+                    size_type tmp_size = _size;
 
                     tmp = _alloc.allocate(_capacity + 1);
                     for (size_type i = 0; i < _size; i++)
                         _alloc.construct(tmp + i, *(_arr + i)); // tmp[i] = _arr[i];
                     clear();
+                    _size = tmp_size;
                     _alloc.deallocate(_arr, _capacity);
                     _arr = tmp;
-                    _alloc.construct(_arr + _size + 1, val);
                     _capacity += 1;
-                    _size += 1;
                 }
-                else
-                {
-                    _alloc.construct(_arr + _size + 1, val);
-                    _size += 1;
-                }
+                _alloc.construct(_arr + _size, val);
+                _size += 1;
             }
 
             void pop_back()
@@ -213,18 +217,19 @@ namespace ft
                     for (; i < _size; i++)
                         _alloc.construct(tmp + i + 1, *(_arr + i));
                     clear();
+                    _size = i;
                     _alloc.deallocate(_arr, _capacity);
                     _arr = tmp;
                     _capacity++;
                 }
                 _size += 1;
-                return _arr + len;
+                return iterator(_arr + len);
             }
 
             void insert (iterator position, size_type n, const value_type& val)
             {
                 for (size_type i = 0; i < n; i++)
-                    insert(position, val);
+                    position = insert(position, val);
             }
 
             template <class InputIterator>
@@ -243,6 +248,7 @@ namespace ft
                 if (_size + len > _capacity)
                 {
                     size_type i = 0;
+                    size_type tmp_size = _size;
                     pointer tab;
 
                     tab = _alloc.allocate(_capacity + len);
@@ -253,6 +259,7 @@ namespace ft
                     for (; i - len < _size; i++)
                         _alloc.construct(tab + i, *(_arr + i - len));
                     clear();
+                    _size = tmp_size;
                     _alloc.deallocate(_arr, _capacity);
                     for (size_type l = 0; l < len; l++)
                         _alloc.destroy(tmp + l);
@@ -264,6 +271,7 @@ namespace ft
                 else
                 {
                     size_type i = 0;
+                    size_type tmp_size = _size;
                     pointer tab;
 
                     tab = _alloc.allocate(_capacity);
@@ -274,6 +282,7 @@ namespace ft
                     for (; i - len < _size; i++)
                         _alloc.construct(tab + i, *(_arr + i - len));
                     clear();
+                    _size = tmp_size;
                     _alloc.deallocate(_arr, _capacity);
                     for (size_type l = 0; l < len; l++)
                         _alloc.destroy(tmp + l);
@@ -299,12 +308,28 @@ namespace ft
             
             iterator erase (iterator first, iterator last)
             {
-                size_type pos = &(*first) - _arr;
+                size_type n = 0;
+                size_type pos = (&(*first) - _arr);
+                for (iterator tmp = first; first != last; first++)
+                    n++;
+                if (_size > 0 && n > 0) {
+                    for (size_type i = 0; i < n; i++)
+                        _alloc.destroy(_arr + pos + i);
+                    for (size_type l = pos; l + n < _size; l++) {
+                        _alloc.construct(_arr + l, *(_arr + l + n));
+                        _alloc.destroy(_arr + l + n);
+                    }
+                    _size -= n;
+                }
+                return iterator(_arr + pos);
 
-                while (first != last)
-                    erase(first++);
+                // size_type pos = &(*first) - _arr;
+                // iterator first_tmp = first;
+            
+                // for (;first != last; first++)
+                //     erase(first_tmp);
 
-                return (_arr + pos);
+                // return (_arr + pos);
             }
 
             size_type size() const { return _size; }
@@ -433,51 +458,56 @@ namespace ft
 
 
     template <class T, class Alloc>
-    bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
-    {
+    bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
+        typename ft::vector<T, Alloc>::const_iterator it = lhs.begin();
+        typename ft::vector<T, Alloc>::const_iterator first = rhs.begin();
+
         if (lhs.size() != rhs.size())
             return false;
-        typename ft::vector<T>::const_iterator lh = lhs.begin();
-		typename ft::vector<T>::const_iterator rh = rhs.begin();
-        while (lh != lhs.end())
-        {
-            if (rh == rhs.end() || *rh != *lh)
+        for (; first != rhs.end() && it != lhs.end(); first++, it++) {
+            if (*first != *it)
                 return false;
-            rh++;
-            lh++;
         }
+        if (first != rhs.end() || it != lhs.end())
+            return false;  
         return true;
-    }
+    };
 
     template <class T, class Alloc>
-    bool operator<  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
-    {
-        return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
-    }
+      bool operator!= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
+          return !(lhs == rhs);
+    };
 
     template <class T, class Alloc>
-    bool operator!= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
-    {
-        return !(lhs == rhs);
-    }
+      bool operator<  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
+        typename ft::vector<T, Alloc>::const_iterator it = lhs.begin();
+        typename ft::vector<T, Alloc>::const_iterator first = rhs.begin();
+
+        for (; first != rhs.end() && it != lhs.end(); it++, first++) {
+            if (*it < *first)
+                return true;
+            if (*it > *first)
+                return false;
+        }
+        if (it == lhs.end() && first != rhs.end())
+            return true;
+        return false;
+    };
 
     template <class T, class Alloc>
-    bool operator<= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
-    {
-        return !(lhs < rhs);
-    }
+      bool operator<= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
+          return (lhs < rhs || lhs == rhs);
+    };
 
     template <class T, class Alloc>
-    bool operator>  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
-    {
-        return lhs < rhs;
-    }
+      bool operator>  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
+        return !(lhs < rhs) && lhs != rhs; 
+    };
 
     template <class T, class Alloc>
-    bool operator>= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
-    {
-        return !(lhs < rhs);
-    }
+      bool operator>= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
+        return (lhs > rhs || lhs == rhs);
+    };
 };
 
 #endif
