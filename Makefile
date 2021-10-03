@@ -6,9 +6,15 @@
 #    By: ranaili <ranaili@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/09/19 17:22:16 by ranaili           #+#    #+#              #
-#    Updated: 2021/09/19 17:24:35 by ranaili          ###   ########.fr        #
+#    Updated: 2021/10/03 17:55:40 by ranaili          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
+
+HEADER = 	containers/map.hpp \
+			containers/stack.hpp \
+			containers/utils.hpp \
+			containers/vector.hpp \
+			containers/iterator.hpp
 
 NAME = a.out
 
@@ -25,7 +31,7 @@ all : $(NAME)
 %.o : %.cpp
 	$(CC) $(CFLAG) -c $< -o $@
 
-$(NAME) : $(OBJS)
+$(NAME) : $(OBJS) $(HEADER)
 	$(CC) $(CFLAG) $(OBJS) -o $(NAME)
 
 clean :

@@ -6,7 +6,7 @@
 /*   By: ranaili <ranaili@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/19 17:33:16 by ranaili           #+#    #+#             */
-/*   Updated: 2021/09/30 22:52:39 by ranaili          ###   ########.fr       */
+/*   Updated: 2021/10/03 17:55:33 by ranaili          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@
 # include <stdexcept>
 # include "Utils.hpp"
 # include "iterator.hpp"
-
 
 namespace ft
 {
@@ -495,12 +494,12 @@ namespace ft
     };
 
     template <class T, class Alloc>
-      bool operator!= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
+    bool operator!= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
           return !(lhs == rhs);
     };
 
     template <class T, class Alloc>
-      bool operator<  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
+    bool operator<  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
         typename ft::vector<T, Alloc>::const_iterator it = lhs.begin();
         typename ft::vector<T, Alloc>::const_iterator first = rhs.begin();
 
@@ -516,17 +515,17 @@ namespace ft
     };
 
     template <class T, class Alloc>
-      bool operator<= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
+    bool operator<= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
           return (lhs < rhs || lhs == rhs);
     };
 
     template <class T, class Alloc>
-      bool operator>  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
+    bool operator>  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
         return !(lhs < rhs) && lhs != rhs; 
     };
 
     template <class T, class Alloc>
-      bool operator>= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
+    bool operator>= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
         return (lhs > rhs || lhs == rhs);
     };
 };
