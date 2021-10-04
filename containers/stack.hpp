@@ -11,10 +11,10 @@
 /* ************************************************************************** */
 
 #ifndef __STACK_HPP__
-# define __STACK_HPP__
+# define __STACK_HPP__  
 
 # include <iostream>
-# include "Utils.hpp"
+# include "utils.hpp"
 # include "vector.hpp"
 # include "iterator.hpp"
 

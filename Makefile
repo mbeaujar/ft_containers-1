@@ -28,10 +28,10 @@ CFLAG = -Wall -Wextra -Werror -std=c++98
 
 all : $(NAME)
 
-%.o : %.cpp
+%.o : %.cpp $(HEADER)
 	$(CC) $(CFLAG) -c $< -o $@
 
-$(NAME) : $(OBJS) $(HEADER)
+$(NAME) : $(OBJS) 
 	$(CC) $(CFLAG) $(OBJS) -o $(NAME)
 
 clean :

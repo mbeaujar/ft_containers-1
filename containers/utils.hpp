@@ -55,6 +55,11 @@ namespace ft
     template<class T>
     struct enable_if<true, T> { typedef T type; };
 
+
+    /* ************************************************************************** */
+    /*                       LEXICOGRAPHICAL_COMPARE                              */
+    /* ************************************************************************** */
+
     template <class InputIterator1, class InputIterator2>
     bool lexicographical_compare (InputIterator1 first1, InputIterator1 last1, InputIterator2 first2, InputIterator2 last2)
     {
@@ -91,7 +96,7 @@ namespace ft
     /* ************************************************************************** */
 
     /**
-     * @brief 
+     * @brief structure with 2 elements, key and value
      * 
      * @tparam T1 key_type
      * @tparam T2 value_type
@@ -112,24 +117,23 @@ namespace ft
         template< class U1, class U2 >
         pair( const pair<U1, U2>& p ) : first(p.first), second(p.second) {};
 
-
         pair& operator=( const pair& other ) {
             if (this == &other)
                 return *this;
-            first = other.first; // attention
+            first = other.first; // 
             second = other.second; 
             return *this;
         };
     };
 
     template< class T1, class T2 >
-    bool operator==( const std::pair<T1,T2>& lhs, const std::pair<T1,T2>& rhs ) { return lhs.first == rhs.first && lhs.second == rhs.second; }
+    bool operator==( const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs ) { return lhs.first == rhs.first && lhs.second == rhs.second; }
 
     template< class T1, class T2 >
-    bool operator!=( const std::pair<T1,T2>& lhs, const std::pair<T1,T2>& rhs ) { return !(lhs == rhs); }
+    bool operator!=( const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs ) { return !(lhs == rhs); }
 
     template< class T1, class T2 >
-    bool operator<( const std::pair<T1,T2>& lhs, const std::pair<T1,T2>& rhs ) { 
+    bool operator<( const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs ) { 
     
         if lhs.first < rhs.first;
             return true;
@@ -141,21 +145,43 @@ namespace ft
     };
 
     template< class T1, class T2 >
-    bool operator<=( const std::pair<T1,T2>& lhs, const std::pair<T1,T2>& rhs ) { return !(rhs < lhs); }
+    bool operator<=( const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs ) { return !(rhs < lhs); }
 
     template< class T1, class T2 >
-    bool operator>( const std::pair<T1,T2>& lhs, const std::pair<T1,T2>& rhs ) { return rhs < lhs; }
+    bool operator>( const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs ) { return rhs < lhs; }
 
     template< class T1, class T2 >
-    bool operator>=( const std::pair<T1,T2>& lhs, const std::pair<T1,T2>& rhs ) { return !(rhs < lhs); }
+    bool operator>=( const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs ) { return !(rhs < lhs); }
 
 
     /* ************************************************************************** */
     /*                               MAKE_PAIR                                    */
     /* ************************************************************************** */
 
+    /**
+     * @brief create a pair
+     * 
+     * @tparam T1 
+     * @tparam T2 
+     * @param t 
+     * @param u 
+     * @return ft::pair<T1,T2> 
+     */
     template< class T1, class T2 >
     ft::pair<T1,T2> make_pair( T1 t, T2 u ) { ft::pair<T1, T2>(t, u); };
+
+
+
+    /* ************************************************************************** */
+    /*                                LESS                                        */
+    /* ************************************************************************** */
+
+    template <class T>
+    struct less : std::binary_function<T, T, bool>
+    {
+        bool operator() (const T& x, const T& y) const { return (x < y); }
+    };
+
     
 };
 
