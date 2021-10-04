@@ -6,7 +6,7 @@
 /*   By: ranaili <ranaili@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/30 15:57:09 by ranaili           #+#    #+#             */
-/*   Updated: 2021/09/30 19:33:10 by ranaili          ###   ########.fr       */
+/*   Updated: 2021/10/04 16:41:56 by ranaili          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@ namespace ft
         typedef typename std::ptrdiff_t                   difference_type;
         typedef typename ft::random_access_iterator_tag   iterator_category;
     };
-
 
     template <class Iterator>
     class reverse_iterator
@@ -191,7 +190,6 @@ namespace ft
 
     template<typename T, typename U>
     typename ft::random_access_iterator<T>::difference_type operator-(const random_access_iterator<T>& lhs, const random_access_iterator<U>& rhs) { return lhs.base() - rhs.base(); }
-
 
     template<typename T, typename U>
     bool operator==(const random_access_iterator<T>& lhs, const random_access_iterator<U>& rhs) { return lhs.base() == rhs.base(); }

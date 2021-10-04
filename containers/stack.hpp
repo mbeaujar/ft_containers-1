@@ -6,7 +6,7 @@
 /*   By: ranaili <ranaili@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 14:00:42 by ranaili           #+#    #+#             */
-/*   Updated: 2021/10/03 17:55:07 by ranaili          ###   ########.fr       */
+/*   Updated: 2021/10/04 16:03:37 by ranaili          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,14 @@ namespace ft
             typedef size_t      size_type;
             typedef Container   container_type;
 
+            /* ************************************************************************** */
+            /*                             Member functions                               */
+            /* ************************************************************************** */
+
             explicit stack (const container_type& ctnr = container_type()) : c(ctnr) {} ;
+
             stack( const stack& other ) : c(other.c) {} ;
+
             ~stack() {};
 
             stack& operator=( const stack& other ) {
@@ -74,6 +80,10 @@ namespace ft
             container_type c;
     };
 
+    /* ************************************************************************** */
+    /*                      Non-member function overloads                         */
+    /* ************************************************************************** */
+    
     template <class T, class Container>
     bool operator== (const stack<T,Container>& lhs, const stack<T,Container>& rhs) { return lhs.c == rhs.c; };
 

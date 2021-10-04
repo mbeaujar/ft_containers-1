@@ -1,53 +1,25 @@
-#include "containers/stack.hpp"
-#include "containers/containers_test/srcs/stack/common.hpp"
+#include <map>
+#include <iostream>
 
-#define TESTED_TYPE int
-#define t_stack_ TESTED_NAMESPACE::stack<TESTED_TYPE>
-typedef t_stack_::container_type container_type;
-
-template <class T_STACK>
-void	cmp(const T_STACK &lhs, const T_STACK &rhs)
+template <typename T>
+void printmap(T &a) 
 {
-	static int i = 0;
+	typename T::iterator it = a.begin();
+	typename T::iterator ite = a.end();
 
-	std::cout << "############### [" << i++ << "] ###############"  << std::endl;
-	std::cout << "eq: " << (lhs == rhs) << " | ne: " << (lhs != rhs) << std::endl;
-	std::cout << "lt: " << (lhs <  rhs) << " | le: " << (lhs <= rhs) << std::endl;
-	std::cout << "gt: " << (lhs >  rhs) << " | ge: " << (lhs >= rhs) << std::endl;
+	for (; it != ite; it++) {
+		std::cout << it->first << " " << it->second << std::endl;
+	}
 }
 
-int		main(void)
+int main()
 {
-	container_type	ctnr;
-
-	ctnr.push_back(21);
-	ctnr.push_back(42);
-	ctnr.push_back(1337);
-	ctnr.push_back(19);
-	ctnr.push_back(0);
-	ctnr.push_back(183792);
-
-	t_stack_	stck(ctnr);
-	t_stack_	stck2(ctnr);
-
-	cmp(stck, stck);  // 0
-	cmp(stck, stck2); // 1
-
-	stck2.push(60);
-	stck2.push(61);
-	stck2.push(62);
-
-	cmp(stck, stck2); // 2
-	cmp(stck2, stck); // 3
-
-	stck.push(42);
-
-	cmp(stck, stck2); // 4
-	cmp(stck2, stck); // 5
-
-	stck.push(100);
-
-	cmp(stck, stck2); // 6
-	cmp(stck2, stck); // 7
-	return (0);
+	std::map<int, std::string> a;
+	a.insert(std::make_pair(10, "mael"));
+	a.insert(std::make_pair(12, "ramzi"));
+	a.insert(std::make_pair(11, "ali"));
+	a.insert(std::make_pair(9, "sofiane"));
+	a.insert(std::pair<int, std::string>(1, "miguel"));
+	printmap(a);
+	return 0;
 }
