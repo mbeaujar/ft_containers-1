@@ -17,26 +17,13 @@ bool fncomp (char lhs, char rhs) {return lhs<rhs;}
 
 int main()
 {
-	// ft::map<int, int> a;
-	// a.insert(ft::make_pair(10, 15));
-	// std::map<int, std::string> a;
-
-	// a.insert(std::make_pair(15, "mael"));
-	// a.insert(std::make_pair(5, "ramzi"));
-
-	// printmap(a);
-
-	// std::map<std::string, std::string> b;
-
-	// b.insert(std::make_pair("PSG", "club de merde"));
-	// b.insert(std::make_pair("OM", "club de pauvre"));
-
-	// std::cout << "ici: " << b["OM"] << std::endl;
-
-	// b["OL"] = "fuck saint-etienne";
-	// std::cout << "ici: " << b["OL"] << std::endl;
-	// printmap(b);
-
-	// a.insert(std::pair<int, std::string>(1, "miguel"));
+	ft::map<int, int> a;
+	ft::map<int, int>::iterator it = a.begin();
+	for (int i = 0; i < 20000; i++)
+		it = a.insert(it,  ft::make_pair(i, 15));
+	printmap(a);
+	ft::map<int, int> b;
+	b.insert(a.begin(), a.end());
+	printmap(b);
 	return 0;
 }

@@ -218,41 +218,42 @@ namespace ft
 
         bidirectional_iterator() {};
 
-        bidirectional_iterator(pointer ptr)
-            : _ptr(ptr) {};
+        bidirectional_iterator(T* ptr)
+            : _M_node(ptr) {};
 
         bidirectional_iterator(bidirectional_iterator const &copy)
-            : _ptr(copy._ptr) {}
+            : _M_node(copy._M_node) {}
 
         ~bidirectional_iterator() {};
 
         bidirectional_iterator operator=(bidirectional_iterator const &copy) {
+
             if (this == &copy)
                 return *this;
-            _ptr = copy._ptr;
+            _M_node = copy._M_node;
             return *this;
         }
 
-        bool operator==(bidirectional_iterator const &lhs) { return _ptr == lhs._ptr; }
-        bool operator!=(bidirectional_iterator const &lhs) { return _ptr != lhs._ptr; }
+        bool operator==(bidirectional_iterator const &lhs) { return (_M_node == lhs._M_node); }
+        bool operator!=(bidirectional_iterator const &lhs) { return (_M_node != lhs._M_node); }
        
-        value_type& operator*() { return _ptr->data; }
-        pointer operator->()    { return &(operator*()); }
+        value_type& operator*() { return _M_node->data; }
+        value_type* operator->()    { return &(operator*()); }
 
         bidirectional_iterator &operator++()
         {
-            if (_ptr->right)
+            if (_M_node->right)
             {
-                _ptr = _ptr->right;
-                while (_ptr->left)
-                    _ptr = _ptr->left;
+                _M_node = _M_node->right;
+                while (_M_node->left)
+                    _M_node = _M_node->left;
             }
             else
             {
-                while (_ptr->parent && _ptr->parent->right == _ptr)
-                    _ptr = _ptr->parent;
-                if (_ptr->parent)
-                    _ptr = _ptr->parent;
+                while (_M_node->parent && _M_node->parent->right == _M_node)
+                    _M_node = _M_node->parent;
+                if (_M_node->parent)
+                    _M_node = _M_node->parent;
             }
             return *this;
         }
@@ -266,18 +267,18 @@ namespace ft
 
         bidirectional_iterator &operator--()
         {
-            if (_ptr->left)
+            if (_M_node->left)
             {
-                _ptr = _ptr->left;
-                while (_ptr->right)
-                    _ptr = _ptr->right;
+                _M_node = _M_node->left;
+                while (_M_node->right)
+                    _M_node = _M_node->right;
             }
             else
             {
-                while (_ptr->parent && _ptr->parent->left == _ptr)
-                    _ptr = _ptr->parent;
-                if (_ptr->parent)
-                    _ptr = _ptr->parent;
+                while (_M_node->parent && _M_node->parent->left == _M_node)
+                    _M_node = _M_node->parent;
+                if (_M_node->parent)
+                    _M_node = _M_node->parent;
             }
             return *this;
         }
@@ -287,12 +288,9 @@ namespace ft
             bidirectional_iterator tmp(*this);
             operator--();
             return tmp;
-        }
+        } 
 
-        // operator cast to const 
-
-        private:
-            pointer _ptr;
+        pointer _M_node;
     };
 }
 
