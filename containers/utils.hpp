@@ -92,7 +92,7 @@ namespace ft
 
 
     /* ************************************************************************** */
-    /*                               PAIR                                         */
+    /*                                  PAIR                                      */
     /* ************************************************************************** */
 
     /**
@@ -135,11 +135,11 @@ namespace ft
     template< class T1, class T2 >
     bool operator<( const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs ) { 
     
-        if lhs.first < rhs.first;
+        if (lhs.first < rhs.first)
             return true;
-        else if rhs.first < lhs.first;
+        else if (rhs.first < lhs.first)
             return false;
-        else if lhs.second < rhs.second;
+        else if (lhs.second < rhs.second)
             return true;
         return false;
     };
@@ -168,9 +168,7 @@ namespace ft
      * @return ft::pair<T1,T2> 
      */
     template< class T1, class T2 >
-    ft::pair<T1,T2> make_pair( T1 t, T2 u ) { ft::pair<T1, T2>(t, u); };
-
-
+    ft::pair<T1,T2> make_pair( T1 t, T2 u ) { return ft::pair<T1, T2>(t, u); };
 
     /* ************************************************************************** */
     /*                                LESS                                        */

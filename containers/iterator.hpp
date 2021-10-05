@@ -15,7 +15,6 @@
 
 # include <iostream>
 # include "utils.hpp"
-# include "vector.hpp"
 
 namespace ft
 {
@@ -203,6 +202,98 @@ namespace ft
     bool operator>(const random_access_iterator<T>& lhs, const random_access_iterator<U>& rhs) { return lhs.base() > rhs.base(); }
     template<typename T, typename U>
     bool operator>=(const random_access_iterator<T>& lhs, const random_access_iterator<U>& rhs) { return lhs.base() >= rhs.base(); }
+
+    /**************************************************************************************************************************/
+
+    struct bidirectional_iterator_tag {};
+
+    template <typename T>
+    class bidirectional_iterator : private ft::iterator<bidirectional_iterator_tag, T> {
+        public:
+            typedef typename T::value_type                                                      value_type;
+            typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::iterator_category iterator_category;
+            typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::pointer           pointer;
+            typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::reference         reference;
+            typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::difference_type   difference_type;
+
+        bidirectional_iterator() {};
+
+        bidirectional_iterator(pointer ptr)
+            : _ptr(ptr) {};
+
+        bidirectional_iterator(bidirectional_iterator const &copy)
+            : _ptr(copy._ptr) {}
+
+        ~bidirectional_iterator() {};
+
+        bidirectional_iterator operator=(bidirectional_iterator const &copy) {
+            if (this == &copy)
+                return *this;
+            _ptr = copy._ptr;
+            return *this;
+        }
+
+        bool operator==(bidirectional_iterator const &lhs) { return _ptr == lhs._ptr; }
+        bool operator!=(bidirectional_iterator const &lhs) { return _ptr != lhs._ptr; }
+       
+        value_type& operator*() { return _ptr->data; }
+        pointer operator->()    { return &(operator*()); }
+
+        bidirectional_iterator &operator++()
+        {
+            if (_ptr->right)
+            {
+                _ptr = _ptr->right;
+                while (_ptr->left)
+                    _ptr = _ptr->left;
+            }
+            else
+            {
+                while (_ptr->parent && _ptr->parent->right == _ptr)
+                    _ptr = _ptr->parent;
+                if (_ptr->parent)
+                    _ptr = _ptr->parent;
+            }
+            return *this;
+        }
+
+        bidirectional_iterator operator++(int)
+        {
+            bidirectional_iterator tmp(*this);
+            operator++();
+            return tmp;
+        }
+
+        bidirectional_iterator &operator--()
+        {
+            if (_ptr->left)
+            {
+                _ptr = _ptr->left;
+                while (_ptr->right)
+                    _ptr = _ptr->right;
+            }
+            else
+            {
+                while (_ptr->parent && _ptr->parent->left == _ptr)
+                    _ptr = _ptr->parent;
+                if (_ptr->parent)
+                    _ptr = _ptr->parent;
+            }
+            return *this;
+        }
+
+        bidirectional_iterator operator--(int)
+        {
+            bidirectional_iterator tmp(*this);
+            operator--();
+            return tmp;
+        }
+
+        // operator cast to const 
+
+        private:
+            pointer _ptr;
+    };
 }
 
 #endif
