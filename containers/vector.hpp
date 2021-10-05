@@ -434,7 +434,7 @@ namespace ft
             /*                                 Allocator                                  */
             /* ************************************************************************** */
             
-            allocator_type get_allocator() const { return allocator_type(); };
+            allocator_type get_allocator() const { return _alloc; };
 
             
         private:

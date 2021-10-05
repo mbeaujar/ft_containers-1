@@ -52,6 +52,7 @@ namespace ft
         node *left;        //           | | |3| |  |
         node *right;      //            |5| | | |1 |
         node *parent;    //           6 | |4| |2|  |0
+        // bool color;
     };
 
 
@@ -108,11 +109,71 @@ namespace ft
             }
 
             /**
+             * @brief Construct a new map object
+             * 
+             * @tparam InputIterator 
+             * @param first 
+             * @param last 
+             * @param comp 
+             * @param alloc 
+             */
+            template <class InputIterator>
+            map (InputIterator first, InputIterator last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
+                : _size(0),
+                  _comp(comp),
+                  _alloc(alloc),
+                  _allocNode()
+            {
+                _end = _allocNode.allocate(1);
+                _allocNode.construct(_end, node(value_type()));
+                _root = _end;
+                _begin = _root;
+                this->insert(first, last);
+            }
+
+            /**
+             * @brief Construct a new map object
+             * 
+             * @param x 
+             */
+            map (const map& x)
+                : _size(0),
+                  _comp(x._comp),
+                  _alloc(x._alloc),
+                  _allocNode(x._allocNode)
+            {
+                _end = _allocNode.allocate(1);
+                _allocNode.construct(_end, node(value_type()));
+                _root = _end;
+                _begin = _root;
+                this->insert(x.begin(), x.end());
+            }
+
+            /**
+             * @brief assign map Object 
+             * 
+             * @param x 
+             * @return map& 
+             */
+            map& operator= (const map& x) {
+                if (this == &x)
+                    return *this;
+                this->clear();
+                _alloc = x._alloc;
+                _allocNode = x._allocNode;
+                _comp = x._comp;
+                this->insert(x.begin(), x.end());
+                return *this;
+            }
+            
+            /**
              * @brief Destroy the map object
              * 
              */
             ~map() {
                 // erase(this->begin(), this->end());
+                // _allocNode.destroy(_end);
+                // _allocNode.deallocate(_end, 1);
             };
 
 
@@ -130,23 +191,22 @@ namespace ft
 
             bool empty() const{ return _size == 0; }
             size_type size() const{ return _size; }
-            size_type max_size() const { return allocator_node().max_size(); }
+            size_type max_size() const { return _allocNode.max_size(); }
 
-            // mapped_type& operator[] (const key_type& k)
-            // {
-            //     iterator position = 
-            // }
+            /**
+             * @brief search a element with the key k 
+             * 
+             * @param k element to search
+             * @return mapped_type& 
+             */
+            mapped_type& operator[] (const key_type& k)
+            {
+                iterator find = searchNode(k);
+                if (find._M_node == _end)
+                    return insertNode(_root, ft::make_pair(k, mapped_type()))->second;
+                return find->second;
+            }
 
-            // void swap (map& x)
-            // {
-            //     node*           _root_tmp;
-            //     node*           _begin_tmp;
-            //     node*           _end_tmp;
-            //     size_type       _size_tmp;
-            //     key_compare     _comp_tmp;
-            //     allocator_type  _alloc_tmp;
-            //     allocator_node  _allocNode_tmp;
-            // }
             
             /**
              * @brief insert a new element to the list 
@@ -177,6 +237,8 @@ namespace ft
                     if (!_comp(position->first, val.first) && !_comp(val.first, position->first))
                         return position;
                     --position;
+                    if (position._M_node->parent)
+                        return insertNode(position._M_node->parent, val);
                     return insertNode(position._M_node, val);
                 } 
                 else {
@@ -185,11 +247,20 @@ namespace ft
                     if (!_comp(position->first, val.first) && !_comp(val.first, position->first))
                         return position;
                     ++position;
+                    if (position._M_node->parent)
+                        return insertNode(position._M_node->parent, val);
                     return insertNode(position._M_node, val);
                 }
                 return position;
             }
 
+            /**
+             * @brief insert a range of element to the list
+             * 
+             * @tparam InputIterator 
+             * @param first the beginning of the range
+             * @param last the end of the range
+             */
             template <class InputIterator>
             void insert (InputIterator first, InputIterator last) {
                 InputIterator position = this->begin();
@@ -198,36 +269,187 @@ namespace ft
                 }
             }
 
-            // size_type erase(const key_type &k)
-            // {
-            //     node *clear = searchNode(k)._M_node;
+            void erase (iterator position) { erase(position->first); }
 
-            //     if (clear == _end)
-            //         return 0;
-            //     if (!clear->left && !clear->right)
-            //     {
-            //         deallocateNode(clear)
-            //         if (clear->parent->right == clear)
-            //             clear->parent->right = NULL;
-            //         else
-            //             clear->parent->left = NULL;
-            //     }
-            //     else if (!clear->left || !clear->right)
-            //     {
-            //         bool left_exist = !(clear->left == NULL);
-            //         deallocateNode(clear)
-            //         if (clear->parent->left == clear && left_exist)
-            //             clear->parent->left = clear->left;
-            //         else if (clear->parent->left == clear && !left_exist)
-            //             clear->parent->left = clear->right;
-            //         else if (clear->parent->right == clear && left_exist)
-            //             clear->parent->right = clear->left;
-            //         else if (clear->parent->right == clear == !left_exist)
-            //             clear->parent->rigth = clear->right;
-            //     }
-            //     return 1;
-            // }
+            size_type erase(const key_type &k)
+            {
+                // bool root = clear == root;
+                // bool begin = clear == begin;
+                node *clear = searchNode(k)._M_node;
 
+                if (clear == _end)
+                    return 0;
+                    //std::cout << "size = " << _size << std::endl;
+                if (!clear->left && !clear->right)
+                {
+                    if (clear->parent->right == clear)
+                        clear->parent->right = NULL;
+                    else
+                        clear->parent->left = NULL;
+                    deallocateNode(clear);
+                    if (_root == clear)
+                        _root = _end;
+                }
+                else if (!clear->left || !clear->right)
+                {
+                    bool left_exist = !(clear->left == NULL);
+                    if (clear->parent->left == clear && left_exist)
+                    {
+                        clear->parent->left = clear->left;
+                        clear->left->parent = clear->parent->left;
+                    }
+                    else if (clear->parent->left == clear && !left_exist)
+                    {
+                        clear->parent->left = clear->right;
+                        clear->right->parent = clear->parent->left;
+                    }
+                    else if (clear->parent->right == clear && left_exist)
+                    {
+                        clear->parent->right = clear->left;
+                        clear->left->parent = clear->parent->right;
+                    }
+                    else if (clear->parent->right == clear == !left_exist)
+                    {
+                        clear->parent->right = clear->right;
+                        clear->right->parent = clear->parent->right;
+                    }
+                    deallocateNode(clear);
+                }
+                else if (clear->left && clear->right)
+                {
+                    node *car = NULL;
+                    
+                    if (clear->left->right)
+                    {
+                        car = clear->left->right;
+                        while (car->right)
+                            car = car->right;
+                        car->parent->right = NULL;
+                    }
+                    else if (clear->right->left)
+                    {
+                        car = clear->right->left;
+                        while (car->left)
+                            car = car->left;
+                        car->parent->left = NULL;
+                    }
+                    if (clear->parent->right == clear)
+                        clear->parent->right = car;
+                    else if (clear->parent->left == clear)
+                        clear->parent->left = car;
+                    
+                    if (car->parent->right == car)
+                    {
+                        car->left = car->parent->right;
+                        car->right = clear->right;
+                    }
+                    else if (car->parent->left == car)
+                    {
+                        car->right = car->parent->left;
+                        car->left = clear->left;
+                    }
+                    deallocateNode(clear);
+                }
+                return 1;
+            }
+
+            void erase (iterator first, iterator last) {
+                while (first != last)
+                    erase(first++);
+            }
+
+
+            void swap (map& x)
+            {
+                if (this == &x)
+				    return;
+                node*           _root_tmp = _root;
+                node*           _begin_tmp = _begin;
+                node*           _end_tmp = _end;
+                size_type       _size_tmp = _size;
+                key_compare     _comp_tmp = _comp;
+                allocator_type  _alloc_tmp = _alloc;
+                allocator_node  _allocNode_tmp = _allocNode;
+
+                _root = x._root;
+                _begin = x._begin;
+                _end = x._end;
+                _size = x._size;
+                _comp = x._comp;
+                _alloc = x._alloc;
+                _allocNode = x._allocNode;
+                
+                x._root = _root_tmp;
+                x._begin = _begin_tmp;
+                x._end = _end_tmp;
+                x._size = _size_tmp;
+                x._comp = _comp_tmp;
+                x._alloc = _alloc_tmp;
+                x._allocNode = _allocNode_tmp;
+            }
+            
+            void clear() { erase(this->begin(), this->end()); }
+
+            key_compare key_comp() const { return _comp; }
+            value_compare value_comp() const { return value_compare(_comp); }
+
+
+            iterator find (const key_type& k) { return (searchNode(k)); }
+
+            const_iterator find (const key_type& k) const { return (searchNode(k)); }
+
+            size_type count (const key_type& k) const 
+            {
+                if (searchNode(k) == end())
+                    return 0;
+                return 1;
+            }
+
+            iterator lower_bound (const key_type& k)
+            {
+                iterator first = begin();
+                iterator last = end();
+                while (first != last && _comp(k, first->first))
+                    first++;
+                return first;
+            }
+            
+            const_iterator lower_bound (const key_type& k) const
+            {
+                iterator first = begin();
+                iterator last = end();
+                while (first != last && _comp(k, first->first))
+                    first++;
+                return first;
+            }
+
+            iterator upper_bound (const key_type& k)
+            {
+                iterator first = begin();
+                iterator last = end();
+                while (first != last && _comp(k, first->first) == false)
+                    first++;
+                return first;
+            }
+
+            const_iterator upper_bound (const key_type& k) const
+            {
+                iterator first = begin();
+                iterator last = end();
+                while (first != last && _comp(k, first->first) == false)
+                    first++;
+                return first;
+            }
+            
+            ft::pair<const_iterator,const_iterator> equal_range (const key_type& k) const { ft::make_pair(lower_bound(k), upper_bound(k)); }
+            
+            ft::pair<iterator,iterator>             equal_range (const key_type& k) { ft::make_pair(lower_bound(k), upper_bound(k)); }
+
+
+            allocator_type get_allocator() const { return _allocNode; }
+
+
+            void printBST() { printBST("", _root, false); }
         private :
             //  allocator_node -> https://newbedev.com/cpp/memory/allocator
             typedef ft::node<value_type, allocator_type>    node;
@@ -239,6 +461,19 @@ namespace ft
             key_compare     _comp;
             allocator_type  _alloc;
             allocator_node  _allocNode;
+
+
+            void printBST(std::string prefix, node* root, bool isLeft)
+            {
+                if (root != NULL && root != _end)
+                {
+                    std::cout << prefix;
+                    std::cout << (isLeft ? "├──" : "└──");
+                    std::cout << root->data.first << std::endl;
+                    printBST(prefix + (isLeft ? "│   " : "    "), root->left, true);
+                    printBST(prefix + (isLeft ? "│   " : "    "), root->right, false);
+                }
+            }
 
             /**
              * @brief deallocate a node
@@ -259,7 +494,6 @@ namespace ft
              * @return iterator on the element (_end if not found)
              */
             iterator searchNode(const key_type &k) {
-
                 node* find = _root;
                 while (!_comp(find->data.first, k) && !_comp(k, find->data.first)) {
                     if (_comp(find->data.first, k)) {
@@ -295,7 +529,7 @@ namespace ft
                 }
                 while (1) 
                 {
-                    if (!_comp(pos->data.first, val.first) && !_comp(val.first, pos->data.first))
+                    if (!_comp(val.first, pos->data.first) && !_comp(pos->data.first, val.first))
                         break;
                     if (_comp(val.first, pos->data.first)) {
                         if (pos->left) {
@@ -331,6 +565,14 @@ namespace ft
                 return pos;
             }
     };
+
+//     template< class Key, class T, class Compare, class Alloc >
+//     bool operator==( const std::map<Key,T,Compare,Alloc>& lhs, const std::map<Key,T,Compare,Alloc>& rhs );
+
+//     template< class Key, class T, class Compare, class Alloc >
+
+// bool operator!=( const std::map<Key,T,Compare,Alloc>& lhs,
+//                  const std::map<Key,T,Compare,Alloc>& rhs );
 }
 
 #endif

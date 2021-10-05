@@ -15,15 +15,15 @@ void printmap(T &a)
 
 bool fncomp (char lhs, char rhs) {return lhs<rhs;}
 
-int main()
+int main(void)
 {
 	ft::map<int, int> a;
-	ft::map<int, int>::iterator it = a.begin();
-	for (int i = 0; i < 20000; i++)
-		it = a.insert(it,  ft::make_pair(i, 15));
-	printmap(a);
-	ft::map<int, int> b;
-	b.insert(a.begin(), a.end());
-	printmap(b);
-	return 0;
+	for (int i = 0; i < 2; i++)
+		a.insert(ft::make_pair(i, 15));
+	a.printBST();
+	a.erase(a.begin());
+	a.printBST();
+	a.erase(a.begin());
+	a.printBST();
+	return (0);
 }
