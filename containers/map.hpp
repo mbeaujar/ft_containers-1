@@ -215,10 +215,10 @@ namespace ft
              * @return ft::pair<iterator,bool> 
              */
             ft::pair<iterator,bool> insert (const value_type& val) {
-                iterator position = insert(_root, val);
-                if (position == _end)
-                    return ft::make_pair(position, false);
-                return ft::make_pair(position, true);
+                iterator position;
+                if ((position = searchNode(val.first)) == _end)
+                    return ft::make_pair(insert(position, val), true);
+                return ft::make_pair(position, false);
             }
 
             /**
@@ -349,28 +349,37 @@ namespace ft
                 else if (clear->left && clear->right)
                 {
                     node *car = NULL;
-                    car = clear->right;
+                    car = clear->right; // cherche car
                     while (car->left)
                         car = car->left;
+                    
                     if (car->right) {
-                        if (car->parent && car->parent->right == car) {
+                        if (car->parent && car->parent->right == car) { // actualise les pointers de car
                             car->parent->right = car->right;
                             car->right->parent = car->parent;
                         } else if (car->parent) {
                             car->parent->left = car->right;
                             car->right->parent = car->parent;
                         }
+                    } else {
+                        if (car->parent && car->parent->right == car) 
+                            car->parent->right = NULL;
+                        else if (car->parent)
+                            car->parent->left = NULL;
                     }
                     car->parent = clear->parent;
-                    if (car->parent && car->parent->right == clear)
+                    if (car->parent && car->parent->right == clear) // actualise les pointers de car avec les parents
                         car->parent->right = car;
                     else if (car->parent)
                         car->parent->left = car;
+
                     car->left = clear->left;
+                    car->right = clear->right;
                     if (clear->left)
                         clear->left->parent = car;
                     if (clear->right)
                         clear->right->parent = car;
+
                     if (clear == _root)
                         _root = car;
                     deallocateNode(clear);

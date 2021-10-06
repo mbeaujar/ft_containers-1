@@ -86,7 +86,9 @@ namespace ft
             pointer             operator->() const { return &(operator*()); }
             reverse_iterator&   operator+= (difference_type n) { current -= n;return (*this); }
             reverse_iterator&   operator-= (difference_type n) { current += n; return (*this); }
+
             reference           operator*() const { iterator_type tmp = current; return (*(--tmp)); }
+
             reference           operator[] (difference_type n) const { return (this->base()[-n - 1]); }
             reverse_iterator    operator--(int) { reverse_iterator tmp = *this; --(*this); return (tmp); }
             reverse_iterator    operator++(int) { reverse_iterator tmp = *this; ++(*this); return (tmp); }
@@ -224,15 +226,17 @@ namespace ft
     template <typename T>
     struct enable_if_const<true, T> { typedef const typename T::value_type value_type; };
 
+
+
     template <typename T, bool isConst>
     class bidirectional_iterator : private ft::iterator<bidirectional_iterator_tag, T> {
         public:
             // typedef typename T::value_type                                                      value_type;
             typedef typename ft::enable_if_const<isConst, T>::value_type                        value_type;
-            typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::iterator_category iterator_category;
-            typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::pointer           pointer;
-            typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::reference         reference;
-            typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::difference_type   difference_type;
+            typedef typename ft::iterator<ft::bidirectional_iterator_tag, value_type>::iterator_category iterator_category;
+            typedef typename ft::iterator<ft::bidirectional_iterator_tag, value_type>::pointer           pointer;
+            typedef typename ft::iterator<ft::bidirectional_iterator_tag, value_type>::reference         reference;
+            typedef typename ft::iterator<ft::bidirectional_iterator_tag, value_type>::difference_type   difference_type;
 
         bidirectional_iterator() {};
 
@@ -255,8 +259,8 @@ namespace ft
         bool operator==(bidirectional_iterator const &lhs) { return (_M_node == lhs._M_node); }
         bool operator!=(bidirectional_iterator const &lhs) { return (_M_node != lhs._M_node); }
        
-        value_type& operator*() const { return _M_node->data; }
-        value_type* operator->() const { return &(operator*()); }
+        reference operator*() const { return _M_node->data; }
+        pointer operator->() const { return &(operator*()); }
 
         bidirectional_iterator &operator++()
         {
@@ -310,7 +314,7 @@ namespace ft
 
         operator bidirectional_iterator<const T, true>() { return bidirectional_iterator<const T, true>(_M_node); }
 
-        pointer _M_node;
+        T* _M_node;
     };
 }
 
