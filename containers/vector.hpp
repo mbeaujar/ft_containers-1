@@ -249,14 +249,14 @@ namespace ft
                     pointer tmp;
                     size_type tmp_size = _size;
 
-                    tmp = _alloc.allocate(_capacity + 1);
+                    tmp = _alloc.allocate((_capacity + 1) * 2);
                     for (size_type i = 0; i < _size; i++)
                         _alloc.construct(tmp + i, *(_arr + i));
                     clear();
                     _size = tmp_size;
                     _alloc.deallocate(_arr, _capacity);
                     _arr = tmp;
-                    _capacity += 1;
+                    _capacity = (_capacity + 1) * 2;
                 }
                 _alloc.construct(_arr + _size, val);
                 _size += 1;
@@ -290,7 +290,7 @@ namespace ft
                 {
                     pointer tmp;
 
-                    tmp = _alloc.allocate(_capacity + 1);
+                    tmp = _alloc.allocate((_capacity + 1) * 2);
                     for (i = 0; i < len; i++)
                         _alloc.construct(tmp + i, *(_arr + i));
                     _alloc.construct(tmp + i, val);
@@ -300,7 +300,7 @@ namespace ft
                     _size = i;
                     _alloc.deallocate(_arr, _capacity);
                     _arr = tmp;
-                    _capacity++;
+                    _capacity = (_capacity + 1) * 2;
                 }
                 _size += 1;
                 return iterator(_arr + len);

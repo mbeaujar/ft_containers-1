@@ -203,7 +203,7 @@ namespace ft
             {
                 iterator find = searchNode(k);
                 if (find._M_node == _end)
-                    return insert(_root, ft::make_pair(k, mapped_type()))->second;
+                    find = insert(_root, ft::make_pair(k, mapped_type()));
                 return find->second;
             }
 
