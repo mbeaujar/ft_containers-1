@@ -443,16 +443,16 @@ namespace ft
             {
                 iterator first = begin();
                 iterator last = end();
-                while (first != last && _comp(k, first->first))
+                while (first != last && _comp(first->first, k))
                     first++;
                 return first;
             }
             
             const_iterator lower_bound (const key_type& k) const
             {
-                iterator first = begin();
-                iterator last = end();
-                while (first != last && _comp(k, first->first))
+                const_iterator first = begin();
+                const_iterator last = end();
+                while (first != last && _comp(first->first, k))
                     first++;
                 return first;
             }
@@ -468,22 +468,20 @@ namespace ft
 
             const_iterator upper_bound (const key_type& k) const
             {
-                iterator first = begin();
-                iterator last = end();
+                const_iterator first = begin();
+                const_iterator last = end();
                 while (first != last && _comp(k, first->first) == false)
                     first++;
                 return first;
             }
             
-            ft::pair<const_iterator,const_iterator> equal_range (const key_type& k) const { ft::make_pair(lower_bound(k), upper_bound(k)); }
+            ft::pair<const_iterator,const_iterator> equal_range (const key_type& k) const { return ft::make_pair(lower_bound(k), upper_bound(k)); }
             
-            ft::pair<iterator,iterator>             equal_range (const key_type& k) { ft::make_pair(lower_bound(k), upper_bound(k)); }
+            ft::pair<iterator,iterator>             equal_range (const key_type& k) { return ft::make_pair(lower_bound(k), upper_bound(k)); }
 
 
             allocator_type get_allocator() const { return _allocNode; }
 
-
-            void printBST() { printBST("", _root, false); std::cout << "\n"; }
         private :
             //  allocator_node -> https://newbedev.com/cpp/memory/allocator
             typedef ft::node<value_type, allocator_type>    node;
@@ -495,19 +493,6 @@ namespace ft
             key_compare     _comp;
             allocator_type  _alloc;
             allocator_node  _allocNode;
-
-
-            void printBST(std::string prefix, node* root, bool isLeft)
-            {
-                if (root != NULL && root != _end)
-                {
-                    std::cout << prefix;
-                    std::cout << (isLeft ? "├──" : "└──");
-                    std::cout << root->data.first << std::endl;
-                    printBST(prefix + (isLeft ? "│   " : "    "), root->left, true);
-                    printBST(prefix + (isLeft ? "│   " : "    "), root->right, false);
-                }
-            }
 
             /**
              * @brief deallocate a node
