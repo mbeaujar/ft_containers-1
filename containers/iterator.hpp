@@ -207,10 +207,28 @@ namespace ft
 
     struct bidirectional_iterator_tag {};
 
+    /**
+     * @brief define value_type to value_type
+     * 
+     * @tparam isConst bool is const or not
+     * @tparam T 
+     */
+    template <bool isConst, typename T>
+    struct enable_if_const { typedef typename T::value_type value_type; };
+
+    /**
+     * @brief define const value_type to value_type
+     * 
+     * @tparam T 
+     */
     template <typename T>
+    struct enable_if_const<true, T> { typedef const typename T::value_type value_type; };
+
+    template <typename T, bool isConst>
     class bidirectional_iterator : private ft::iterator<bidirectional_iterator_tag, T> {
         public:
-            typedef typename T::value_type                                                      value_type;
+            // typedef typename T::value_type                                                      value_type;
+            typedef typename ft::enable_if_const<isConst, T>::value_type                        value_type;
             typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::iterator_category iterator_category;
             typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::pointer           pointer;
             typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::reference         reference;
@@ -237,8 +255,8 @@ namespace ft
         bool operator==(bidirectional_iterator const &lhs) { return (_M_node == lhs._M_node); }
         bool operator!=(bidirectional_iterator const &lhs) { return (_M_node != lhs._M_node); }
        
-        value_type& operator*() { return _M_node->data; }
-        value_type* operator->()    { return &(operator*()); }
+        value_type& operator*() const { return _M_node->data; }
+        value_type* operator->() const { return &(operator*()); }
 
         bidirectional_iterator &operator++()
         {
@@ -289,6 +307,8 @@ namespace ft
             operator--();
             return tmp;
         } 
+
+        operator bidirectional_iterator<const T, true>() { return bidirectional_iterator<const T, true>(_M_node); }
 
         pointer _M_node;
     };

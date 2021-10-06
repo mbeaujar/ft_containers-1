@@ -52,7 +52,7 @@ namespace ft
         node *left;        //           | | |3| |  |
         node *right;      //            |5| | | |1 |
         node *parent;    //           6 | |4| |2|  |0
-        // bool color;
+        bool color;
     };
 
 
@@ -84,8 +84,8 @@ namespace ft
             typedef typename allocator_type::const_pointer      const_pointer;
             typedef typename allocator_type::difference_type    difference_type;
             typedef typename allocator_type::const_reference    const_reference;
-            typedef ft::bidirectional_iterator<ft::node<value_type, allocator_type> >    iterator;
-            typedef ft::bidirectional_iterator<const ft::node<value_type, allocator_type> >    const_iterator;
+            typedef ft::bidirectional_iterator<ft::node<value_type, allocator_type>, false>    iterator;
+            typedef ft::bidirectional_iterator<const ft::node<value_type, allocator_type>, true>    const_iterator;
             typedef ft::reverse_iterator<iterator> reverse_iterator;
             typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
             
@@ -171,9 +171,9 @@ namespace ft
              * 
              */
             ~map() {
-                // erase(this->begin(), this->end());
-                // _allocNode.destroy(_end);
-                // _allocNode.deallocate(_end, 1);
+                erase(this->begin(), this->end());
+                _allocNode.destroy(_end);
+                _allocNode.deallocate(_end, 1);
             };
 
 
@@ -203,7 +203,7 @@ namespace ft
             {
                 iterator find = searchNode(k);
                 if (find._M_node == _end)
-                    return insertNode(_root, ft::make_pair(k, mapped_type()))->second;
+                    return insert(_root, ft::make_pair(k, mapped_type()))->second;
                 return find->second;
             }
 
@@ -228,10 +228,12 @@ namespace ft
              * @param val element to add
              * @return iterator on the element (new or old) 
              */
-            iterator insert (iterator position, const value_type& val) { 
+            iterator insert (iterator position, const value_type& val) 
+            {
                 if (_root == _end)
                     return insertNode(_root, val);             
-                if (_comp(position->first, val.first)) {
+                if (_comp(position->first, val.first))
+                {
                     while (_comp(position->first, val.first) && position != _end)
                         ++position;
                     if (!_comp(position->first, val.first) && !_comp(val.first, position->first))
@@ -241,7 +243,8 @@ namespace ft
                         return insertNode(position._M_node->parent, val);
                     return insertNode(position._M_node, val);
                 } 
-                else {
+                else 
+                {
                     while (_comp(val.first, position->first) && position != _begin)
                         --position;
                     if (!_comp(position->first, val.first) && !_comp(val.first, position->first))
@@ -263,7 +266,7 @@ namespace ft
              */
             template <class InputIterator>
             void insert (InputIterator first, InputIterator last) {
-                InputIterator position = this->begin();
+                iterator position = this->begin();
                 for (; first != last; first++) {
                     position = insert(position, *first);
                 }
@@ -273,81 +276,103 @@ namespace ft
 
             size_type erase(const key_type &k)
             {
-                // bool root = clear == root;
-                // bool begin = clear == begin;
                 node *clear = searchNode(k)._M_node;
 
-                if (clear == _end)
+                if (clear == _end || clear == NULL)
                     return 0;
-                    //std::cout << "size = " << _size << std::endl;
                 if (!clear->left && !clear->right)
                 {
                     if (clear->parent->right == clear)
                         clear->parent->right = NULL;
                     else
                         clear->parent->left = NULL;
+                        
+                    if (clear == _begin)
+                    {
+                        if (clear->parent)
+                            _begin = clear->parent;
+                    }
                     deallocateNode(clear);
-                    if (_root == clear)
-                        _root = _end;
                 }
                 else if (!clear->left || !clear->right)
                 {
-                    bool left_exist = !(clear->left == NULL);
-                    if (clear->parent->left == clear && left_exist)
+                    bool left_exist = clear->left != NULL;
+                    if (_root == clear)
                     {
-                        clear->parent->left = clear->left;
-                        clear->left->parent = clear->parent->left;
+                        clear->right->parent = NULL;
+                        _root = clear->right;
+                        if (clear == _begin) {
+                            if (clear->left || clear->right) {
+                                if (clear->left)
+                                    _begin = clear->left;
+                                else
+                                    _begin = clear->right;
+                                while (_begin->left)
+                                    _begin = _begin->left;
+                            } else 
+                                _begin = clear->parent;
+                        }
                     }
-                    else if (clear->parent->left == clear && !left_exist)
+                    else
                     {
-                        clear->parent->left = clear->right;
-                        clear->right->parent = clear->parent->left;
+                        if (clear->parent->left == clear && left_exist)
+                        {
+                            clear->parent->left = clear->left;
+                            clear->left->parent = clear->parent;
+                        }
+                        else if (clear->parent->left == clear && !left_exist)
+                        {
+                            clear->parent->left = clear->right;
+                            clear->right->parent = clear->parent;
+                        }
+                        else if (clear->parent->right == clear && left_exist)
+                        {
+                            clear->parent->right = clear->left;
+                            clear->left->parent = clear->parent;
+                        }
+                        else if (clear->parent->right == clear && !left_exist)
+                        {
+                            clear->parent->right = clear->right;
+                            clear->right->parent = clear->parent;
+                        }
                     }
-                    else if (clear->parent->right == clear && left_exist)
-                    {
-                        clear->parent->right = clear->left;
-                        clear->left->parent = clear->parent->right;
-                    }
-                    else if (clear->parent->right == clear == !left_exist)
-                    {
-                        clear->parent->right = clear->right;
-                        clear->right->parent = clear->parent->right;
+                    if (clear == _begin) {
+                        if (clear->right) {
+                            _begin = clear->right; 
+                            while (_begin->left)
+                                _begin = _begin->left;
+                        } else if (_begin != _root)
+                            _begin = clear->parent;
                     }
                     deallocateNode(clear);
                 }
                 else if (clear->left && clear->right)
                 {
                     node *car = NULL;
-                    
-                    if (clear->left->right)
-                    {
-                        car = clear->left->right;
-                        while (car->right)
-                            car = car->right;
-                        car->parent->right = NULL;
+                    car = clear->right;
+                    while (car->left)
+                        car = car->left;
+                    if (car->right) {
+                        if (car->parent && car->parent->right == car) {
+                            car->parent->right = car->right;
+                            car->right->parent = car->parent;
+                        } else if (car->parent) {
+                            car->parent->left = car->right;
+                            car->right->parent = car->parent;
+                        }
                     }
-                    else if (clear->right->left)
-                    {
-                        car = clear->right->left;
-                        while (car->left)
-                            car = car->left;
-                        car->parent->left = NULL;
-                    }
-                    if (clear->parent->right == clear)
-                        clear->parent->right = car;
-                    else if (clear->parent->left == clear)
-                        clear->parent->left = car;
-                    
-                    if (car->parent->right == car)
-                    {
-                        car->left = car->parent->right;
-                        car->right = clear->right;
-                    }
-                    else if (car->parent->left == car)
-                    {
-                        car->right = car->parent->left;
-                        car->left = clear->left;
-                    }
+                    car->parent = clear->parent;
+                    if (car->parent && car->parent->right == clear)
+                        car->parent->right = car;
+                    else if (car->parent)
+                        car->parent->left = car;
+                    car->left = clear->left;
+                    if (clear->left)
+                        clear->left->parent = car;
+                    if (clear->right)
+                        clear->right->parent = car;
+                    if (clear == _root)
+                        _root = car;
                     deallocateNode(clear);
                 }
                 return 1;
@@ -400,7 +425,7 @@ namespace ft
 
             size_type count (const key_type& k) const 
             {
-                if (searchNode(k) == end())
+                if (searchNode(k)._M_node == _end)
                     return 0;
                 return 1;
             }
@@ -449,7 +474,7 @@ namespace ft
             allocator_type get_allocator() const { return _allocNode; }
 
 
-            void printBST() { printBST("", _root, false); }
+            void printBST() { printBST("", _root, false); std::cout << "\n"; }
         private :
             //  allocator_node -> https://newbedev.com/cpp/memory/allocator
             typedef ft::node<value_type, allocator_type>    node;
@@ -493,16 +518,16 @@ namespace ft
              * @param k key to find
              * @return iterator on the element (_end if not found)
              */
-            iterator searchNode(const key_type &k) {
+            iterator searchNode(const key_type &k) const {
+
                 node* find = _root;
-                while (!_comp(find->data.first, k) && !_comp(k, find->data.first)) {
-                    if (_comp(find->data.first, k)) {
-                        find = find->left;
-                    } else {
-                        find = find->right;
-                    }
-                    if (!find)
+                while (find) {
+                    if (!_comp(find->data.first, k) && !_comp(k, find->data.first))
                         break;
+                    if (_comp(find->data.first, k))
+                        find = find->right;
+                    else
+                        find = find->left;
                 }
                 if (!find)
                     return _end;
@@ -516,8 +541,10 @@ namespace ft
              * @param val value_type to insert
              * @return iterator to the new element
              */
-            iterator insertNode(node* pos, const value_type& val) {
-                if (_root == _end)  {
+            iterator insertNode(node* pos, const value_type& val) 
+            {
+                if (_root == _end)  
+                {
                     node* tmp = _allocNode.allocate(1);
                     _allocNode.construct(tmp, node(val));
                     _root = tmp;
@@ -531,24 +558,28 @@ namespace ft
                 {
                     if (!_comp(val.first, pos->data.first) && !_comp(pos->data.first, val.first))
                         break;
-                    if (_comp(val.first, pos->data.first)) {
-                        if (pos->left) {
+                    if (_comp(val.first, pos->data.first)) 
+                    {
+                        if (pos->left)
                             pos = pos->left;
-                        } else {
+                         else 
+                        {
                             node* tmp = _allocNode.allocate(1);
                             _allocNode.construct(tmp, node(val));
-                            if (pos == _begin) {
+                            if (pos == _begin)
                                 _begin = tmp;
-                            }
                             pos->left = tmp;
                             tmp->parent = pos;
                             _size++;
                             return tmp;
                         }
-                    } else {
-                        if (pos->right && pos->right != _end) {
+                    } 
+                    else 
+                    {
+                        if (pos->right && pos->right != _end)
                             pos = pos->right;
-                        } else {
+                        else
+                        {
                             node *tmp = _allocNode.allocate(1);
                             _allocNode.construct(tmp, node(val));
                             if (pos->right == _end) {
@@ -566,13 +597,43 @@ namespace ft
             }
     };
 
-//     template< class Key, class T, class Compare, class Alloc >
-//     bool operator==( const std::map<Key,T,Compare,Alloc>& lhs, const std::map<Key,T,Compare,Alloc>& rhs );
-
-//     template< class Key, class T, class Compare, class Alloc >
-
-// bool operator!=( const std::map<Key,T,Compare,Alloc>& lhs,
-//                  const std::map<Key,T,Compare,Alloc>& rhs );
+    template< class Key, class T, class Compare, class Alloc >
+    bool operator==( const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs )
+    {
+        if (lhs.size() != rhs.size())
+            return false;
+        return ft::equal(lhs.begin(), lhs.end(), rhs.begin());
+    }
+   	
+    template< class Key, class T, class Compare, class Alloc >
+    bool operator!=( const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs )
+    {
+        return !(lhs == rhs);
+    }
+    
+    template< class Key, class T, class Compare, class Alloc >
+    bool operator<( const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs )
+    {
+        return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+    }
+    
+    template< class Key, class T, class Compare, class Alloc >
+    bool operator<=( const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs )
+    {
+        return !(rhs < lhs);
+    }
+    
+    template< class Key, class T, class Compare, class Alloc >
+    bool operator>( const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs )
+    {
+        return (rhs < lhs);
+    }
+    
+    template< class Key, class T, class Compare, class Alloc >
+    bool operator>=( const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs )
+    {
+        return !(lhs < rhs);
+    }
 }
 
 #endif
