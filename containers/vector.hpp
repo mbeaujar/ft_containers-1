@@ -66,7 +66,7 @@ namespace ft
                 _arr(NULL),
                 _alloc(x._alloc),
                 _size(0),
-                _capacity(0) { assign(x.begin(), x.end()); }
+                _capacity() { assign(x.begin(), x.end()); }
 
             ~vector() { clear(); _alloc.deallocate(_arr, _capacity); }
 
@@ -271,39 +271,38 @@ namespace ft
                 }
             }
 
-            iterator insert (iterator position, const value_type& val)
-            {
-                size_type len = &(*position) - _arr;
-                size_type i = _size;
-
-                if (_size + 1 <= _capacity)
-                {
-                    for (; i > len; i--)
-                    {
-                        _alloc.construct(_arr + i + 1, *(_arr + i));
-                        _alloc.destroy(_arr + i);
-                    }
-                    _alloc.destroy(_arr + i);
-                    _alloc.construct(_arr + i, val);
-                }
-                else
-                {
-                    pointer tmp;
-
-                    tmp = _alloc.allocate((_capacity + 1) * 2);
-                    for (i = 0; i < len; i++)
+            iterator insert (iterator position, const value_type& val) {
+ 			    size_type pos = (&(*position) - _arr);
+			    if (_size == _capacity) {
+                    size_type i = 0;
+                    pointer tmp = _alloc.allocate((_capacity + 1) * 2);
+                    for (; i < pos; i++)
                         _alloc.construct(tmp + i, *(_arr + i));
                     _alloc.construct(tmp + i, val);
                     for (; i < _size; i++)
                         _alloc.construct(tmp + i + 1, *(_arr + i));
                     clear();
-                    _size = i;
                     _alloc.deallocate(_arr, _capacity);
                     _arr = tmp;
                     _capacity = (_capacity + 1) * 2;
+                    _size = i + 1;
                 }
-                _size += 1;
-                return iterator(_arr + len);
+                else {
+                    pointer tmp = _alloc.allocate(_size - pos);
+                    for (size_type i = 0; i < (_size - pos); i++)
+                        _alloc.construct(tmp + i, *(_arr + pos + i));
+                    for (size_type l = pos; l < _size; l++)
+                        _alloc.destroy(_arr + l);
+                    _alloc.construct(_arr + pos, val);
+                    size_type i = 0;
+                    for (size_type l = pos + 1; l < _size + 1; l++, i++) {
+                        _alloc.construct(_arr + l, *(tmp + i));
+                        _alloc.destroy(tmp + i);
+                    }
+                    _alloc.deallocate(tmp, _size - pos);
+                    _size++;
+                }
+                return iterator(_arr + pos);
             }
 
             void insert (iterator position, size_type n, const value_type& val)
@@ -350,24 +349,22 @@ namespace ft
                 }
                 else
                 {
-                    size_type i = 0;
-                    size_type tmp_size = _size;
+                    size_type i = pos;
                     pointer tab;
 
-                    tab = _alloc.allocate(_capacity);
-                    for (; i < pos; i++)
-                        _alloc.construct(tab + i, *(_arr + i));
-                    for (size_type l = 0; l < len; l++, i++)
-                        _alloc.construct(tab + i, *(tmp + l));
-                    for (; i - len < _size; i++)
-                        _alloc.construct(tab + i, *(_arr + i - len));
-                    clear();
-                    _size = tmp_size;
-                    _alloc.deallocate(_arr, _capacity);
+                    tab = _alloc.allocate(_size - pos);
+                    for (; i < _size; i++)
+                        _alloc.construct(tab + (i - pos), *(_arr + i));
+                    for (i = pos; i < len; i++)
+                        _alloc.construct(_arr + i, *(tmp + (i - pos)));
+                    for (; i < len + _size; i++)
+                        _alloc.construct(_arr + i, *(tab + (i - (_size + len))));
+                    for (size_type y = 0; y < _size - pos; y++)
+                        _alloc.destroy(tab + y);
+                    _alloc.deallocate(tab, _size - pos);
                     for (size_type l = 0; l < len; l++)
                         _alloc.destroy(tmp + l);
                     _alloc.deallocate(tmp, len);
-                    _arr = tab;
                     _size += len;
                 }
             }
