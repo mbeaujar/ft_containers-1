@@ -116,6 +116,8 @@ namespace ft
 
             void resize(size_type n, value_type val = value_type())
             {
+                if (n > max_size())
+				    throw std::length_error("vector::_M_fill_insert");
                 if (n <= _size)
                 {
                     for (size_type i = n; i < _size; i++)
@@ -151,6 +153,8 @@ namespace ft
 
             void reserve (size_type n)
             {
+                if (n > max_size())
+				    throw std::length_error("vector::reserve");
                 if (n > _capacity)
                 {
                     pointer tmp;
@@ -321,11 +325,11 @@ namespace ft
 
                 for (InputIterator to = first; to != last; to++)
                     len++;
-                tmp = _alloc.allocate(len);
-                for (size_type i = 0; tmp_first != last; tmp_first++, i++)
-                    _alloc.construct(tmp + i, *tmp_first);
                 if (_size + len > _capacity)
                 {
+                    tmp = _alloc.allocate(len);
+                    for (size_type i = 0; tmp_first != last; tmp_first++, i++)
+                        _alloc.construct(tmp + i, *tmp_first);
                     size_type i = 0;
                     size_type tmp_size = _size;
                     pointer tab;
@@ -349,23 +353,8 @@ namespace ft
                 }
                 else
                 {
-                    size_type i = pos;
-                    pointer tab;
-
-                    tab = _alloc.allocate(_size - pos);
-                    for (; i < _size; i++)
-                        _alloc.construct(tab + (i - pos), *(_arr + i));
-                    for (i = pos; i < len; i++)
-                        _alloc.construct(_arr + i, *(tmp + (i - pos)));
-                    for (; i < len + _size; i++)
-                        _alloc.construct(_arr + i, *(tab + (i - (_size + len))));
-                    for (size_type y = 0; y < _size - pos; y++)
-                        _alloc.destroy(tab + y);
-                    _alloc.deallocate(tab, _size - pos);
-                    for (size_type l = 0; l < len; l++)
-                        _alloc.destroy(tmp + l);
-                    _alloc.deallocate(tmp, len);
-                    _size += len;
+                    while (first != last)
+                        position = insert(position, *first++);
                 }
             }
 

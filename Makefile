@@ -34,8 +34,17 @@ all : $(NAME)
 $(NAME) : $(OBJS) 
 	$(CC) $(CFLAG) $(OBJS) -o $(NAME)
 
+comp: 
+	@clang++ -D FT=1 main.cpp -Icontainers -o ft && ./ft > output_ft
+	@clang++ main.cpp -o std && ./std > output_std
+	@-diff output_ft output_std
+	@-rm -rf output_std output_ft
+
 clean :
 	rm -f $(OBJS)
+	@-rm -f output_ft
+	@-rm -f output_std
+	@-rm -f ft std
 
 fclean : clean
 	rm -f $(NAME)

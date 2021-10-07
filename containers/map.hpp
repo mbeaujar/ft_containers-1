@@ -216,7 +216,7 @@ namespace ft
              */
             ft::pair<iterator,bool> insert (const value_type& val) {
                 iterator position;
-                if ((position = searchNode(val.first)) == _end)
+                if ((position = searchNode(val.first))._M_node == _end)
                     return ft::make_pair(insert(position, val), true);
                 return ft::make_pair(position, false);
             }
@@ -234,7 +234,7 @@ namespace ft
                     return insertNode(_root, val);             
                 if (_comp(position->first, val.first))
                 {
-                    while (_comp(position->first, val.first) && position != _end)
+                    while (_comp(position->first, val.first) && position._M_node != _end)
                         ++position;
                     if (!_comp(position->first, val.first) && !_comp(val.first, position->first))
                         return position;
@@ -245,7 +245,7 @@ namespace ft
                 } 
                 else 
                 {
-                    while (_comp(val.first, position->first) && position != _begin)
+                    while (_comp(val.first, position->first) && position._M_node != _begin)
                         --position;
                     if (!_comp(position->first, val.first) && !_comp(val.first, position->first))
                         return position;

@@ -243,7 +243,10 @@ namespace ft
         bidirectional_iterator(T* ptr)
             : _M_node(ptr) {};
 
-        bidirectional_iterator(bidirectional_iterator const &copy)
+        T* base() { return _M_node; }
+
+        template <typename U, bool fuckConst>
+        bidirectional_iterator(bidirectional_iterator<U, fuckConst> const &copy, typename ft::enable_if<!fuckConst, U>::type* = 0)
             : _M_node(copy._M_node) {}
 
         ~bidirectional_iterator() {};
@@ -314,8 +317,12 @@ namespace ft
 
         operator bidirectional_iterator<const T, true>() { return bidirectional_iterator<const T, true>(_M_node); }
 
+        operator const T*() { return _M_node; }
+
         T* _M_node;
     };
+
+    // template  
 }
 
 #endif
